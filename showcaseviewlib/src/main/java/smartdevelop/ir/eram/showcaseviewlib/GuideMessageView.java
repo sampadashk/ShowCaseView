@@ -56,11 +56,11 @@ class GuideMessageView extends LinearLayout {
         mTitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_TITLE_TEXT_SIZE);
         mTitleTextView.setTextColor(Color.WHITE);
         addView(
-            mTitleTextView,
-            new LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                mTitleTextView,
+                new LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                )
         );
 
         mContentTextView = new TextView(context);
@@ -69,11 +69,11 @@ class GuideMessageView extends LinearLayout {
         mContentTextView.setPadding(padding, paddingBottom, padding, padding);
         mContentTextView.setGravity(Gravity.CENTER);
         addView(
-            mContentTextView,
-            new LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                mContentTextView,
+                new LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                )
         );
         mActionButtonTextView = new TextView(context);
         mActionButtonTextView.setText("Next");
@@ -134,7 +134,6 @@ class GuideMessageView extends LinearLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.d("tag_guidemessage","draw");
 
        /* this.getLocationOnScreen(location);
 

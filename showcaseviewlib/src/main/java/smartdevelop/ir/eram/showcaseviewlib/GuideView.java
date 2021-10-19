@@ -56,7 +56,7 @@ public class GuideView extends FrameLayout {
     private static final int MARGIN_INDICATOR = 15;
     private PointerType pointerType;
 
-  private static final int BACKGROUND_COLOR = 0x99000000;
+    private static final int BACKGROUND_COLOR = 0x99000000;
     private final Paint selfPaint = new Paint();
     private final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint animPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -104,7 +104,6 @@ public class GuideView extends FrameLayout {
                     locationTarget[0] + target.getWidth(),
                     locationTarget[1] + target.getHeight()
             );
-            Log.d("tag_tarhetRect", "is" + targetRect);
         }
 
         mMessageView = new GuideMessageView(getContext());
@@ -135,7 +134,6 @@ public class GuideView extends FrameLayout {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setPadding(8, 8, 8, 8);
 
-
         ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -160,12 +158,7 @@ public class GuideView extends FrameLayout {
                             locationTarget[0] + target.getWidth(),
                             locationTarget[1] + target.getHeight()
                     );
-                    Log.d("tag_tarhetRect1", "is" + targetRect);
                 }
-                Log.d("tag_padding", "left " + getPaddingLeft());
-                Log.d("tag_padding", "top " + getPaddingTop());
-                Log.d("tag_padding", "right " + getPaddingRight());
-                Log.d("tag_padding", "bottom " + getPaddingBottom());
                 selfRect.set(
                         getPaddingLeft(),
                         getPaddingTop(),
@@ -209,15 +202,15 @@ public class GuideView extends FrameLayout {
             if (target instanceof Targetable) {
                 canvas.drawPath(((Targetable) target).guidePath(), targetPaint);
             } else {
-              canvas.drawRoundRect(
+                canvas.drawRoundRect(
                         targetRect,
                         RADIUS_SIZE_TARGET_RECT,
                         RADIUS_SIZE_TARGET_RECT,
                         targetPaint
                 );
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    canvas.drawRoundRect(targetRect.left-20,targetRect.top-20, targetRect.right+20, targetRect.bottom+20, RADIUS_SIZE_TARGET_RECT,
-                            RADIUS_SIZE_TARGET_RECT, animPaint );
+                    canvas.drawRoundRect(targetRect.left - 20, targetRect.top - 20, targetRect.right + 20, targetRect.bottom + 20, RADIUS_SIZE_TARGET_RECT,
+                            RADIUS_SIZE_TARGET_RECT, animPaint);
                 }
             }
 
@@ -302,7 +295,6 @@ public class GuideView extends FrameLayout {
     }
 
     private void setMessageLocation(Point p) {
-        Log.d("tag_loc", "is" + p);
         mMessageView.setX(p.x);
         mMessageView.setY(p.y);
         postInvalidate();
