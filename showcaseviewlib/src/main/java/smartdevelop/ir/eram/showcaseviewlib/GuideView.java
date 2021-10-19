@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -23,6 +24,7 @@ import android.text.Spannable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
@@ -117,7 +119,7 @@ public class GuideView extends FrameLayout {
             messageViewPadding,
             messageViewPadding
         );
-        mMessageView.setColor(Color.WHITE);
+        mMessageView.setColor(Color.TRANSPARENT);
 
         addView(
             mMessageView,
@@ -317,6 +319,9 @@ public class GuideView extends FrameLayout {
         }
     }
 
+
+
+
     public boolean isShowing() {
         return mIsShowing;
     }
@@ -438,10 +443,12 @@ public class GuideView extends FrameLayout {
         this.setClickable(false);
 
         ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).addView(this);
-        AlphaAnimation startAnimation = new AlphaAnimation(0.0f, 1.0f);
+      /*  AlphaAnimation startAnimation = new AlphaAnimation(0.0f, 1.0f);
         startAnimation.setDuration(APPEARING_ANIMATION_DURATION);
         startAnimation.setFillAfter(true);
         this.startAnimation(startAnimation);
+
+       */
         mIsShowing = true;
     }
 
