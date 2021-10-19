@@ -1,12 +1,15 @@
 package smartdevelop.ir.eram.showcaseviewlib;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.Spannable;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -26,12 +29,13 @@ class GuideMessageView extends LinearLayout {
     private static final int DEFAULT_CONTENT_TEXT_SIZE = 14;
 
     private final Paint mPaint;
-    private final RectF mRect;
 
     private final TextView mTitleTextView;
     private final TextView mContentTextView;
+    private final TextView mActionButtonTextView;
     int[] location = new int[2];
 
+    @SuppressLint("NewApi")
     GuideMessageView(Context context) {
         super(context);
 
@@ -40,7 +44,6 @@ class GuideMessageView extends LinearLayout {
         setOrientation(VERTICAL);
         setGravity(Gravity.CENTER);
 
-        mRect = new RectF();
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
 
@@ -72,6 +75,23 @@ class GuideMessageView extends LinearLayout {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         );
+        mActionButtonTextView = new TextView(context);
+        mActionButtonTextView.setText("Next");
+        mActionButtonTextView.setTextColor(Color.BLACK);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mActionButtonTextView.setBackground(context.getDrawable(R.drawable.round_button_drawable));
+        }
+        mActionButtonTextView.setGravity(Gravity.CENTER);
+        mActionButtonTextView.setPadding(padding, paddingBottom, padding, padding);
+        addView(
+                mActionButtonTextView,
+                new LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+        );
+
     }
 
     public void setTitle(String title) {
@@ -114,8 +134,9 @@ class GuideMessageView extends LinearLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.d("tag_guidemessage","draw");
 
-        this.getLocationOnScreen(location);
+       /* this.getLocationOnScreen(location);
 
         mRect.set(
             getPaddingLeft(),
@@ -127,5 +148,7 @@ class GuideMessageView extends LinearLayout {
         final int density = (int) getResources().getDisplayMetrics().density;
         final int radiusSize = RADIUS_SIZE * density;
         canvas.drawRoundRect(mRect, radiusSize, radiusSize, mPaint);
+
+        */
     }
 }

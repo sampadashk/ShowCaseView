@@ -21,6 +21,7 @@ import android.graphics.Typeface;
 import android.graphics.Xfermode;
 import android.os.Build;
 import android.text.Spannable;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
@@ -44,22 +46,20 @@ public class GuideView extends FrameLayout {
     private static final int INDICATOR_HEIGHT = 40;
     private static final int MESSAGE_VIEW_PADDING = 5;
     private static final int SIZE_ANIMATION_DURATION = 700;
+    private static final int APPEARING_ANIMATION_DURATION = 400;
+    private float circleInnerIndicatorSize = 0;
+    private float circleIndicatorSize = 0;
     private static final int CIRCLE_INDICATOR_SIZE = 6;
     private static final int LINE_INDICATOR_WIDTH_SIZE = 3;
     private static final int STROKE_CIRCLE_INDICATOR_SIZE = 3;
     private static final int RADIUS_SIZE_TARGET_RECT = 15;
     private static final int MARGIN_INDICATOR = 15;
+    private PointerType pointerType;
 
-    private static final int BACKGROUND_COLOR = 0x99000000;
-    private static final int CIRCLE_INNER_INDICATOR_COLOR = 0xffcccccc;
-    private static final int CIRCLE_INDICATOR_COLOR = Color.WHITE;
-    private static final int LINE_INDICATOR_COLOR = Color.WHITE;
-
+  private static final int BACKGROUND_COLOR = 0x99000000;
     private final Paint selfPaint = new Paint();
-    private final Paint paintLine = new Paint();
-    private final Paint paintCircle = new Paint();
-    private final Paint paintCircleInner = new Paint();
     private final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint animPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Xfermode X_FER_MODE_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
 
     private final View target;
@@ -67,13 +67,10 @@ public class GuideView extends FrameLayout {
     private final Rect selfRect = new Rect();
 
     private final float density;
-    private float stopY;
     private boolean isTop;
     private boolean mIsShowing;
     private int yMessageView = 0;
 
-    private float startYLineAndCircle;
-    private float circleIndicatorSizeFinal;
     private float lineIndicatorWidthSize;
     private int messageViewPadding;
     private float marginGuide;
@@ -86,6 +83,7 @@ public class GuideView extends FrameLayout {
     private Gravity mGravity;
     private DismissType dismissType;
     private final GuideMessageView mMessageView;
+    private TextView textView;
 
     private GuideView(Context context, View view) {
         super(context);
@@ -101,31 +99,42 @@ public class GuideView extends FrameLayout {
             int[] locationTarget = new int[2];
             target.getLocationOnScreen(locationTarget);
             targetRect = new RectF(
-                locationTarget[0],
-                locationTarget[1],
-                locationTarget[0] + target.getWidth(),
-                locationTarget[1] + target.getHeight()
+                    locationTarget[0],
+                    locationTarget[1],
+                    locationTarget[0] + target.getWidth(),
+                    locationTarget[1] + target.getHeight()
             );
+            Log.d("tag_tarhetRect", "is" + targetRect);
         }
 
         mMessageView = new GuideMessageView(getContext());
         mMessageView.setPadding(
-            messageViewPadding,
-            messageViewPadding,
-            messageViewPadding,
-            messageViewPadding
+                messageViewPadding,
+                messageViewPadding,
+                messageViewPadding,
+                messageViewPadding
         );
         mMessageView.setColor(Color.TRANSPARENT);
 
         addView(
-            mMessageView,
-            new LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                mMessageView,
+                new LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                )
         );
 
         setMessageLocation(resolveMessageViewLocation());
+        textView = new TextView(context);
+        textView.setText("Skip");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            textView.setBackground(context.getDrawable(R.drawable.round_button_drawable));
+        }
+        addView(textView, new LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        textView.setPadding(8, 8, 8, 8);
+
 
         ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -137,6 +146,8 @@ public class GuideView extends FrameLayout {
                 }
 
                 setMessageLocation(resolveMessageViewLocation());
+                textView.setY(getStatusBarHeight(context) + 50);
+                textView.setX(getWidth() - 120);
 
                 if (target instanceof Targetable) {
                     targetRect = ((Targetable) target).boundingRect();
@@ -144,83 +155,29 @@ public class GuideView extends FrameLayout {
                     int[] locationTarget = new int[2];
                     target.getLocationOnScreen(locationTarget);
                     targetRect = new RectF(
-                        locationTarget[0],
-                        locationTarget[1],
-                        locationTarget[0] + target.getWidth(),
-                        locationTarget[1] + target.getHeight()
+                            locationTarget[0],
+                            locationTarget[1],
+                            locationTarget[0] + target.getWidth(),
+                            locationTarget[1] + target.getHeight()
                     );
+                    Log.d("tag_tarhetRect1", "is" + targetRect);
                 }
-
+                Log.d("tag_padding", "left " + getPaddingLeft());
+                Log.d("tag_padding", "top " + getPaddingTop());
+                Log.d("tag_padding", "right " + getPaddingRight());
+                Log.d("tag_padding", "bottom " + getPaddingBottom());
                 selfRect.set(
-                    getPaddingLeft(),
-                    getPaddingTop(),
-                    getWidth() - getPaddingRight(),
-                    getHeight() - getPaddingBottom()
+                        getPaddingLeft(),
+                        getPaddingTop(),
+                        getWidth() - getPaddingRight(),
+                        getHeight() - getPaddingBottom()
                 );
 
                 marginGuide = (int) (isTop ? marginGuide : -marginGuide);
-                startYLineAndCircle = (isTop ? targetRect.bottom : targetRect.top) + marginGuide;
-                stopY = yMessageView + indicatorHeight;
-                //startAnimationSize();
                 getViewTreeObserver().addOnGlobalLayoutListener(this);
             }
         };
         getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
-    }
-
-    private void startAnimationSize() {
-        if (!isPerformedAnimationSize) {
-            final ValueAnimator circleSizeAnimator = ValueAnimator.ofFloat(
-                0f,
-                circleIndicatorSizeFinal
-            );
-            circleSizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    circleIndicatorSize = (float) circleSizeAnimator.getAnimatedValue();
-                    circleInnerIndicatorSize = (float) circleSizeAnimator.getAnimatedValue() - density;
-                    postInvalidate();
-                }
-            });
-
-            final ValueAnimator linePositionAnimator = ValueAnimator.ofFloat(
-                stopY,
-                startYLineAndCircle
-            );
-            linePositionAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    startYLineAndCircle = (float) linePositionAnimator.getAnimatedValue();
-                    postInvalidate();
-                }
-            });
-
-            linePositionAnimator.setDuration(SIZE_ANIMATION_DURATION);
-            linePositionAnimator.start();
-            linePositionAnimator.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animator) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animator) {
-                    circleSizeAnimator.setDuration(SIZE_ANIMATION_DURATION);
-                    circleSizeAnimator.start();
-                    isPerformedAnimationSize = true;
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animator) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animator) {
-
-                }
-            });
-        }
     }
 
     private void init() {
@@ -229,22 +186,8 @@ public class GuideView extends FrameLayout {
         indicatorHeight = INDICATOR_HEIGHT * density;
         messageViewPadding = (int) (MESSAGE_VIEW_PADDING * density);
         strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE * density;
-        circleIndicatorSizeFinal = CIRCLE_INDICATOR_SIZE * density;
     }
 
-    private int getNavigationBarSize() {
-        Resources resources = getContext().getResources();
-        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return resources.getDimensionPixelSize(resourceId);
-        }
-        return 0;
-    }
-
-    private boolean isLandscape() {
-        int display_mode = getResources().getConfiguration().orientation;
-        return display_mode != Configuration.ORIENTATION_PORTRAIT;
-    }
 
     @Override
     protected void onDraw(final Canvas canvas) {
@@ -255,36 +198,41 @@ public class GuideView extends FrameLayout {
             selfPaint.setStyle(Paint.Style.FILL);
             selfPaint.setAntiAlias(true);
             canvas.drawRect(selfRect, selfPaint);
-
-            paintLine.setStyle(Paint.Style.FILL);
-            paintLine.setColor(LINE_INDICATOR_COLOR);
-            paintLine.setStrokeWidth(lineIndicatorWidthSize);
-            paintLine.setAntiAlias(true);
-
-            paintCircle.setStyle(Paint.Style.STROKE);
-            paintCircle.setColor(CIRCLE_INDICATOR_COLOR);
-            paintCircle.setStrokeCap(Paint.Cap.ROUND);
-            paintCircle.setStrokeWidth(strokeCircleWidth);
-            paintCircle.setAntiAlias(true);
-
-            paintCircleInner.setStyle(Paint.Style.FILL);
-            paintCircleInner.setColor(CIRCLE_INNER_INDICATOR_COLOR);
-            paintCircleInner.setAntiAlias(true);
-
             targetPaint.setXfermode(X_FER_MODE_CLEAR);
             targetPaint.setAntiAlias(true);
+            animPaint.setColor(Color.WHITE);
+            animPaint.setStrokeWidth(2);
 
+            animPaint.setXfermode(X_FER_MODE_CLEAR);
+            animPaint.setAntiAlias(true);
+            animPaint.setStyle(Paint.Style.STROKE);
             if (target instanceof Targetable) {
                 canvas.drawPath(((Targetable) target).guidePath(), targetPaint);
             } else {
-                canvas.drawRoundRect(
-                    targetRect,
-                    RADIUS_SIZE_TARGET_RECT,
-                    RADIUS_SIZE_TARGET_RECT,
-                    targetPaint
+              canvas.drawRoundRect(
+                        targetRect,
+                        RADIUS_SIZE_TARGET_RECT,
+                        RADIUS_SIZE_TARGET_RECT,
+                        targetPaint
                 );
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    canvas.drawRoundRect(targetRect.left-20,targetRect.top-20, targetRect.right+20, targetRect.bottom+20, RADIUS_SIZE_TARGET_RECT,
+                            RADIUS_SIZE_TARGET_RECT, animPaint );
+                }
             }
+
         }
+    }
+
+    // Returns the status bar height of current device.
+    public static int getStatusBarHeight(Context context) {
+        int height = 0;
+        int resId = context.getResources().getIdentifier(
+                "status_bar_height", "dimen", "android");
+
+        if (resId > 0) height = context.getResources().getDimensionPixelSize(resId);
+
+        return height;
     }
 
 
@@ -333,7 +281,7 @@ public class GuideView extends FrameLayout {
                     break;
 
                 case outsideTargetAndMessage:
-                    if(!(targetRect.contains(x, y) || isViewContains(mMessageView, x, y))){
+                    if (!(targetRect.contains(x, y) || isViewContains(mMessageView, x, y))) {
                         dismiss();
                     }
             }
@@ -354,6 +302,7 @@ public class GuideView extends FrameLayout {
     }
 
     private void setMessageLocation(Point p) {
+        Log.d("tag_loc", "is" + p);
         mMessageView.setX(p.x);
         mMessageView.setY(p.y);
         postInvalidate();
@@ -379,9 +328,11 @@ public class GuideView extends FrameLayout {
         if (xMessageView < 0) {
             xMessageView = 0;
         }
-
+        isTop = true;
+        //  yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
+        yMessageView = (int) (targetRect.top + targetRect.height());
         //set message view bottom
-        if ((targetRect.top + (indicatorHeight)) > getHeight() / 2f) {
+    /*    if ((targetRect.top + (indicatorHeight)) > getHeight() / 2f) {
             isTop = false;
             yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
         }
@@ -390,6 +341,8 @@ public class GuideView extends FrameLayout {
             isTop = true;
             yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
         }
+
+     */
 
         if (yMessageView < 0) {
             yMessageView = 0;
@@ -400,8 +353,8 @@ public class GuideView extends FrameLayout {
 
     public void show() {
         this.setLayoutParams(new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
         ));
         this.setClickable(false);
 
@@ -632,6 +585,7 @@ public class GuideView extends FrameLayout {
             this.pointerType = pointerType;
             return this;
         }
+
         public GuideView build() {
             GuideView guideView = new GuideView(context, targetView);
             guideView.mGravity = gravity != null ? gravity : Gravity.auto;

@@ -34,30 +34,29 @@ public class MainActivity extends AppCompatActivity {
         view6 = findViewById(R.id.view6);
 
         builder = new GuideView.Builder(this)
-                .setTitle("Guide Title Text")
+                .setTitle("Guide Title 0")
                 .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
                 .setGravity(Gravity.center)
                 .setDismissType(DismissType.anywhere)
-                .setPointerType(PointerType.arrow)
                 .setTargetView(view1)
                 .setGuideListener(new GuideListener() {
                     @Override
                     public void onDismiss(View view) {
                         switch (view.getId()) {
                             case R.id.view1:
-                                builder.setTargetView(view2).build();
+                                builder.setTargetView(view2).setTitle("Title 1").build();
                                 break;
                             case R.id.view2:
-                                builder.setTargetView(view3).build();
+                                builder.setTargetView(view3).setTitle("Title 3").build();
                                 break;
                             case R.id.view3:
-                                builder.setTargetView(view4).build();
+                                builder.setTargetView(view4).setTitle("Title 4").build();
                                 break;
                             case R.id.view4:
-                                builder.setTargetView(view5).build();
+                                builder.setTargetView(view5).setTitle("Title 5").build();
                                 break;
                             case R.id.view5:
-                                builder.setTargetView(view6).build();
+                                builder.setTargetView(view6).setTitle("Title 6").build();
                                 break;
                             case R.id.view6:
                                 return;
