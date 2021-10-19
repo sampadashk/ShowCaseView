@@ -44,7 +44,6 @@ public class GuideView extends FrameLayout {
     private static final int INDICATOR_HEIGHT = 40;
     private static final int MESSAGE_VIEW_PADDING = 5;
     private static final int SIZE_ANIMATION_DURATION = 700;
-    private static final int APPEARING_ANIMATION_DURATION = 400;
     private static final int CIRCLE_INDICATOR_SIZE = 6;
     private static final int LINE_INDICATOR_WIDTH_SIZE = 3;
     private static final int STROKE_CIRCLE_INDICATOR_SIZE = 3;
@@ -74,9 +73,7 @@ public class GuideView extends FrameLayout {
     private int yMessageView = 0;
 
     private float startYLineAndCircle;
-    private float circleIndicatorSize = 0;
     private float circleIndicatorSizeFinal;
-    private float circleInnerIndicatorSize = 0;
     private float lineIndicatorWidthSize;
     private int messageViewPadding;
     private float marginGuide;
@@ -88,7 +85,6 @@ public class GuideView extends FrameLayout {
     private GuideListener mGuideListener;
     private Gravity mGravity;
     private DismissType dismissType;
-    private PointerType pointerType;
     private final GuideMessageView mMessageView;
 
     private GuideView(Context context, View view) {
@@ -165,7 +161,7 @@ public class GuideView extends FrameLayout {
                 marginGuide = (int) (isTop ? marginGuide : -marginGuide);
                 startYLineAndCircle = (isTop ? targetRect.bottom : targetRect.top) + marginGuide;
                 stopY = yMessageView + indicatorHeight;
-                startAnimationSize();
+                //startAnimationSize();
                 getViewTreeObserver().addOnGlobalLayoutListener(this);
             }
         };
@@ -275,34 +271,6 @@ public class GuideView extends FrameLayout {
             paintCircleInner.setColor(CIRCLE_INNER_INDICATOR_COLOR);
             paintCircleInner.setAntiAlias(true);
 
-            final float x = (targetRect.left / 2 + targetRect.right / 2);
-
-            switch (pointerType) {
-                case circle:
-                    canvas.drawLine(x,startYLineAndCircle,x,stopY,paintLine);
-                    canvas.drawCircle(x, startYLineAndCircle, circleIndicatorSize, paintCircle);
-                    canvas.drawCircle(x, startYLineAndCircle, circleInnerIndicatorSize, paintCircleInner);
-                    break;
-                case arrow:
-                    canvas.drawLine(x,startYLineAndCircle,x,stopY,paintLine);
-                    Path path = new Path();
-                    if (isTop) {
-                        path.moveTo(x, startYLineAndCircle - (circleIndicatorSize * 2));
-                        path.lineTo(x + circleIndicatorSize, startYLineAndCircle);
-                        path.lineTo(x - circleIndicatorSize, startYLineAndCircle);
-                        path.close();
-                    } else {
-                        path.moveTo(x, startYLineAndCircle + (circleIndicatorSize * 2));
-                        path.lineTo(x + circleIndicatorSize, startYLineAndCircle);
-                        path.lineTo(x - circleIndicatorSize, startYLineAndCircle);
-                        path.close();
-                    }
-                    canvas.drawPath(path, paintCircle);
-                    break;
-                case none:
-                    //draw no line and no pointer
-                    break;
-            }
             targetPaint.setXfermode(X_FER_MODE_CLEAR);
             targetPaint.setAntiAlias(true);
 
@@ -318,8 +286,6 @@ public class GuideView extends FrameLayout {
             }
         }
     }
-
-
 
 
     public boolean isShowing() {
@@ -406,9 +372,6 @@ public class GuideView extends FrameLayout {
             xMessageView = (int) (targetRect.right) - mMessageView.getWidth();
         }
 
-        if (isLandscape()) {
-            xMessageView -= getNavigationBarSize();
-        }
 
         if (xMessageView + mMessageView.getWidth() > getWidth()) {
             xMessageView = getWidth() - mMessageView.getWidth();
